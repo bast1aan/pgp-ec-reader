@@ -9,6 +9,7 @@ import org.bouncycastle.openpgp.PGPSecretKey
 import java.io.InputStream
 import java.io.BufferedInputStream
 import java.io.FileInputStream
+import java.io.File
 
 internal fun openPrivateKeyFile(fileName: String, keyId: Long? = null, pass: String? = null): PGPPrivateKey? {
 	var fp = FileInputStream(fileName)
@@ -51,14 +52,23 @@ internal fun openPrivateKeyFile(fileName: String, keyId: Long? = null, pass: Str
 	)
 }
 
+internal fun usage() {
+	println("Usage: pgpreader <file.pgp>")
+}
+
 public fun main(args: Array<String>) {
-    println("Hallo");
-    var key = openPrivateKeyFile("secret-key.pgp")
-    if (key != null) {
-        println(key.keyID)
-        println(key::class)
-        println(key.privateKeyDataPacket::class)
-    } else {
-        println("private key is null")
-    }
+	if (args.size < 1) { return usage() }
+	var file = args[0]
+	if (!File(file).exists()) {
+		println("${file} does not exist")
+		return usage()
+	}
+	var key = openPrivateKeyFile(file)
+	if (key != null) {
+		println(key.keyID)
+		println(key::class)
+		println(key.privateKeyDataPacket::class)
+	} else {
+		println("private key is null")
+	}
 }
