@@ -7,9 +7,10 @@
 	<groupId>bast1aan.pgpreader</groupId>
 	<artifactId>bast1aan-pgpreader</artifactId>
 	<version>0.1</version>
+
 	<properties>
 		<kotlin.version>2.0.0</kotlin.version>
-		<main.class>bast1aan.pgpreader.MainKt</main.class>
+		<main.class>bast1aan.pgpreader.PgpreaderKt</main.class>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -17,9 +18,14 @@
 			<artifactId>kotlin-stdlib</artifactId>
 			<version>${kotlin.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpg-jdk18on</artifactId>
+			<version>1.78.1</version>
+		</dependency>
 	</dependencies>
 	<build>
-		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+		<sourceDirectory>${project.basedir}/</sourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.jetbrains.kotlin</groupId>
