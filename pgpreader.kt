@@ -3,14 +3,24 @@ package bast1aan.pgpreader;
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.PGPPrivateKey
 import org.bouncycastle.openpgp.PGPSecretKeyRingCollection
-import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator;
+import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder
 import org.bouncycastle.openpgp.PGPSecretKey
 import org.bouncycastle.bcpg.ECSecretBCPGKey
+import org.bouncycastle.bcpg.ECPublicBCPGKey
+import org.bouncycastle.jce.spec.ECPrivateKeySpec
+import org.bouncycastle.asn1.x9.X9ECParameters
+import org.bouncycastle.asn1.x9.ECNamedCurveTable
+import org.bouncycastle.asn1.ASN1ObjectIdentifier
+import org.bouncycastle.crypto.ec.CustomNamedCurves
+import org.bouncycastle.math.ec.ECCurve
+import org.bouncycastle.math.ec.ECPoint
+import org.bouncycastle.util.BigIntegers
 import java.io.InputStream
 import java.io.BufferedInputStream
 import java.io.FileInputStream
 import java.io.File
+import java.math.BigInteger
 
 internal fun openPrivateKeyFile(fileName: String, keyId: Long? = null, pass: String? = null): PGPPrivateKey? {
 	var fp = FileInputStream(fileName)
@@ -53,6 +63,16 @@ internal fun openPrivateKeyFile(fileName: String, keyId: Long? = null, pass: Str
 	)
 }
 
+internal fun getX9Parameters(oid: ASN1ObjectIdentifier): X9ECParameters {
+	val var1 = CustomNamedCurves.getByOID(oid)
+	if (var1 != null) { return var1 }
+	return ECNamedCurveTable.getByOID(oid)
+}
+
+internal fun decodePoint(xyEncoded: BigInteger, ecCurve: ECCurve):  ECPoint {
+	return ecCurve.decodePoint(BigIntegers.asUnsignedByteArray(xyEncoded));
+ }
+
 internal fun usage() {
 	println("Usage: pgpreader <file.pgp>")
 }
@@ -67,9 +87,18 @@ public fun main(args: Array<String>) {
 	var key = openPrivateKeyFile(file)
 	if (key != null) {
 		val packet = key.privateKeyDataPacket
-		if (packet is ECSecretBCPGKey) {
+		val publicKey = key.publicKeyPacket.key
+		if (packet is ECSecretBCPGKey && publicKey is ECPublicBCPGKey) {
+			val d = packet.getX()
 			print("D: ")
-			println(packet.getX())
+			println(d)
+			val curveOID = publicKey.getCurveOID()
+			val x9Params = getX9Parameters(curveOID)
+			val ecPubPoint = decodePoint(publicKey.encodedPoint, x9Params.curve)
+			print("X: ")
+			println(ecPubPoint.affineXCoord.toBigInteger())
+			print("Y: ")
+			println(ecPubPoint.affineYCoord.toBigInteger())
 		} else {
 			println("Only EC private keys are supported as of now.")
 		}
