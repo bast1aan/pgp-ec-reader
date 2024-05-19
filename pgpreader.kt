@@ -6,6 +6,7 @@ import org.bouncycastle.openpgp.PGPSecretKeyRingCollection
 import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder
 import org.bouncycastle.openpgp.PGPSecretKey
+import org.bouncycastle.bcpg.ECSecretBCPGKey
 import java.io.InputStream
 import java.io.BufferedInputStream
 import java.io.FileInputStream
@@ -65,10 +66,15 @@ public fun main(args: Array<String>) {
 	}
 	var key = openPrivateKeyFile(file)
 	if (key != null) {
+		val packet = key.privateKeyDataPacket
+		if (packet is ECSecretBCPGKey) {
+			print("D: ")
+			println(packet.getX())
+		} else {
+			println("Only EC private keys are supported as of now.")
+		}
 		println(key.keyID)
-		println(key::class)
-		println(key.privateKeyDataPacket::class)
 	} else {
-		println("private key is null")
+		println("Invalid PGP file, or not a secret key")
 	}
 }
