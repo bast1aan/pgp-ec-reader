@@ -75,9 +75,9 @@ internal fun usage() {
 
 internal fun getECParameterSpec(curveOID: ASN1ObjectIdentifier): JavaECParameterSpec {
 	val helper = DefaultJcaJceHelper()
-	val params = helper.createAlgorithmParameters("EC");
+	val params = helper.createAlgorithmParameters("EC")
 
-	params.init(JavaECGenParameterSpec(ECNamedCurveTable.getName(curveOID)));
+	params.init(JavaECGenParameterSpec(ECNamedCurveTable.getName(curveOID)))
 
 	return params.getParameterSpec(JavaECParameterSpec::class.java)
 }
@@ -128,14 +128,14 @@ public fun main(args: Array<String>) {
 			val privateKey = keyFactory.generatePrivate(ecPrivSpec)
 			print("Pubkey: ")
 			println(Hex.toHexString(pubKey.encoded))
-			var file = FileOutputStream("pubkey.der")
-			file.write(pubKey.encoded)
-			file.close()
+			var outfile = FileOutputStream("pubkey.der")
+			outfile.write(pubKey.encoded)
+			outfile.close()
 			print("Private key: ")
 			println(Hex.toHexString(privateKey.encoded))
-			file = FileOutputStream("privkey.der")
-			file.write(privateKey.encoded)
-			file.close()
+			outfile = FileOutputStream("privkey.der")
+			outfile.write(privateKey.encoded)
+			outfile.close()
 		} else {
 			println("Only EC private keys are supported as of now.")
 		}
