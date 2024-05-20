@@ -27,8 +27,8 @@ internal fun openPrivateKeyFile(fileName: String, keyId: ByteArray? = null, pass
 		JcaKeyFingerprintCalculator()
 	)
 	var secKey: PGPSecretKey? = null
-	for (ring in rings.getKeyRings()) {
-		for (key in ring.getSecretKeys()) {
+	for (ring in rings.keyRings) {
+		for (key in ring.secretKeys) {
 			if (keyId != null && keyId contentEquals key.fingerprint || 
 				keyId == null && key.isSigningKey()
 			) {
@@ -86,10 +86,10 @@ public fun main(args: Array<String>) {
 		val packet = key.privateKeyDataPacket
 		val publicKey = key.publicKeyPacket.key
 		if (packet is ECSecretBCPGKey && publicKey is ECPublicBCPGKey) {
-			val d = packet.getX()
+			val d = packet.x
 			print("D: ")
 			println(d)
-			val curveOID = publicKey.getCurveOID()
+			val curveOID = publicKey.curveOID
 			val x9Params = getX9Parameters(curveOID)
 			val ecPubPoint = decodePoint(publicKey.encodedPoint, x9Params.curve)
 			print("X: ")
