@@ -23,9 +23,9 @@ import java.io.File
 import java.math.BigInteger
 
 internal fun openPrivateKeyFile(fileName: String, keyId: Long? = null, pass: String? = null): PGPPrivateKey? {
-	var fp = FileInputStream(fileName)
-	var keyIn = BufferedInputStream(fp)
-	var rings = PGPSecretKeyRingCollection(
+	val fp = FileInputStream(fileName)
+	val keyIn = BufferedInputStream(fp)
+	val rings = PGPSecretKeyRingCollection(
 		PGPUtil.getDecoderStream(keyIn), 
 		JcaKeyFingerprintCalculator()
 	)
@@ -63,15 +63,9 @@ internal fun openPrivateKeyFile(fileName: String, keyId: Long? = null, pass: Str
 	)
 }
 
-internal fun getX9Parameters(oid: ASN1ObjectIdentifier): X9ECParameters {
-	val var1 = CustomNamedCurves.getByOID(oid)
-	if (var1 != null) { return var1 }
-	return ECNamedCurveTable.getByOID(oid)
-}
+internal fun getX9Parameters(oid: ASN1ObjectIdentifier) = CustomNamedCurves.getByOID(oid) ?: ECNamedCurveTable.getByOID(oid)
 
-internal fun decodePoint(xyEncoded: BigInteger, ecCurve: ECCurve):  ECPoint {
-	return ecCurve.decodePoint(BigIntegers.asUnsignedByteArray(xyEncoded));
- }
+internal fun decodePoint(xyEncoded: BigInteger, ecCurve: ECCurve) = ecCurve.decodePoint(BigIntegers.asUnsignedByteArray(xyEncoded))
 
 internal fun usage() {
 	println("Usage: pgpreader <file.pgp>")
@@ -79,12 +73,12 @@ internal fun usage() {
 
 public fun main(args: Array<String>) {
 	if (args.size < 1) { return usage() }
-	var file = args[0]
+	val file = args[0]
 	if (!File(file).exists()) {
 		println("${file} does not exist")
 		return usage()
 	}
-	var key = openPrivateKeyFile(file)
+	val key = openPrivateKeyFile(file)
 	if (key != null) {
 		val packet = key.privateKeyDataPacket
 		val publicKey = key.publicKeyPacket.key
