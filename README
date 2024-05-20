@@ -1,0 +1,7 @@
+Tool that converts PGP private Eliptic Curve keys to ASN1 DER format. This format can be used to convert further to PEM, PKCS8, SSH, etc with for instance openssl.
+
+I needed this to be able to put my offline nistp384 keys on my PIV smartcard for work.
+
+For RSA already many tools are available. Tools that do elliptic curves are not so wide supported. Luckily Bouncing Castle does support them.
+
+Unfortunately, ED25519 keys are not supported yet in this tool, since I don't use them on smartcards, but it should not be hard to add.
