@@ -5,5 +5,5 @@ ADD pom.xml /srv/pom.xml
 
 RUN mvn verify clean
 
-ADD . /
+ADD . /srv
 RUN mvn package
