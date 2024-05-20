@@ -1,4 +1,4 @@
-package bast1aan.pgpreader;
+package bast1aan.pgpreader
 
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.PGPPrivateKey
@@ -16,13 +16,15 @@ import org.bouncycastle.crypto.ec.CustomNamedCurves
 import org.bouncycastle.math.ec.ECCurve
 import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.BigIntegers
+import org.bouncycastle.util.encoders.Hex
 import java.io.InputStream
 import java.io.BufferedInputStream
 import java.io.FileInputStream
 import java.io.File
 import java.math.BigInteger
+import java.util.HexFormat
 
-internal fun openPrivateKeyFile(fileName: String, keyId: Long? = null, pass: String? = null): PGPPrivateKey? {
+internal fun openPrivateKeyFile(fileName: String, keyId: ByteArray? = null, pass: String? = null): PGPPrivateKey? {
 	val fp = FileInputStream(fileName)
 	val keyIn = BufferedInputStream(fp)
 	val rings = PGPSecretKeyRingCollection(
@@ -30,21 +32,18 @@ internal fun openPrivateKeyFile(fileName: String, keyId: Long? = null, pass: Str
 		JcaKeyFingerprintCalculator()
 	)
 	var secKey: PGPSecretKey? = null
-	if (keyId == null) {
-		// find first
-		for (ring in rings.getKeyRings()) {
-			for (key in ring.getSecretKeys()) {
-				if (key.isSigningKey()) {
-					secKey = key
-					break
-				}
-			}
-			if (secKey != null) {
+	for (ring in rings.getKeyRings()) {
+		for (key in ring.getSecretKeys()) {
+			if (keyId != null && keyId contentEquals key.fingerprint || 
+				keyId == null && key.isSigningKey()
+			) {
+				secKey = key
 				break
 			}
 		}
-	} else {
-		secKey = rings.getSecretKey(keyId)
+		if (secKey != null) {
+			break
+		}
 	}
 	fp.close()
 	if (secKey == null) {
@@ -68,17 +67,26 @@ internal fun getX9Parameters(oid: ASN1ObjectIdentifier) = CustomNamedCurves.getB
 internal fun decodePoint(xyEncoded: BigInteger, ecCurve: ECCurve) = ecCurve.decodePoint(BigIntegers.asUnsignedByteArray(xyEncoded))
 
 internal fun usage() {
-	println("Usage: pgpreader <file.pgp>")
+	println("Usage: pgpreader <file.pgp> [, key_fingerprint ]")
 }
 
 public fun main(args: Array<String>) {
-	if (args.size < 1) { return usage() }
+	if (args.size < 1) return usage()
 	val file = args[0]
 	if (!File(file).exists()) {
 		println("${file} does not exist")
 		return usage()
 	}
-	val key = openPrivateKeyFile(file)
+	var keyId: ByteArray? = null
+	if (args.size >= 2) {
+		try {
+			keyId = HexFormat.of().parseHex(args[1])
+		} catch (e: IllegalArgumentException) {
+			println("Warning: ${args[1]} is not a valid key fingerprint, ignored.")
+		}
+	}
+	// TODO implement password, from stdin would be nice
+	val key = openPrivateKeyFile(file, keyId)
 	if (key != null) {
 		val packet = key.privateKeyDataPacket
 		val publicKey = key.publicKeyPacket.key
