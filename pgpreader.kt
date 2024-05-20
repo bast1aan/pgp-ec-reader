@@ -1,6 +1,6 @@
 package bast1aan.pgpreader
 
-import org.bouncycastle.openpgp.PGPUtil;
+import org.bouncycastle.openpgp.PGPUtil
 import org.bouncycastle.openpgp.PGPPrivateKey
 import org.bouncycastle.openpgp.PGPSecretKeyRingCollection
 import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator
@@ -8,16 +8,11 @@ import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder
 import org.bouncycastle.openpgp.PGPSecretKey
 import org.bouncycastle.bcpg.ECSecretBCPGKey
 import org.bouncycastle.bcpg.ECPublicBCPGKey
-import org.bouncycastle.jce.spec.ECPrivateKeySpec
-import org.bouncycastle.asn1.x9.X9ECParameters
 import org.bouncycastle.asn1.x9.ECNamedCurveTable
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.crypto.ec.CustomNamedCurves
 import org.bouncycastle.math.ec.ECCurve
-import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.BigIntegers
-import org.bouncycastle.util.encoders.Hex
-import java.io.InputStream
 import java.io.BufferedInputStream
 import java.io.FileInputStream
 import java.io.File
