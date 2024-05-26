@@ -12,6 +12,7 @@ import org.bouncycastle.asn1.x9.ECNamedCurveTable
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.crypto.ec.CustomNamedCurves
 import org.bouncycastle.jcajce.util.DefaultJcaJceHelper
+import org.bouncycastle.jcajce.util.JcaJceHelper
 import org.bouncycastle.math.ec.ECCurve
 import org.bouncycastle.util.BigIntegers
 import org.bouncycastle.util.encoders.Hex
@@ -26,6 +27,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.math.BigInteger
 import java.util.HexFormat
+
+private val helper: JcaJceHelper by lazy { DefaultJcaJceHelper() }
 
 internal fun openPrivateKeyFile(fileName: String, keyId: ByteArray? = null, pass: String? = null): PGPPrivateKey? {
 	val fp = FileInputStream(fileName)
@@ -74,7 +77,6 @@ internal fun usage() {
 }
 
 internal fun getECParameterSpec(curveOID: ASN1ObjectIdentifier): JavaECParameterSpec {
-	val helper = DefaultJcaJceHelper()
 	val params = helper.createAlgorithmParameters("EC")
 
 	params.init(JavaECGenParameterSpec(ECNamedCurveTable.getName(curveOID)))
@@ -115,16 +117,17 @@ public fun main(args: Array<String>) {
 			println(ecPubPoint.affineXCoord.toBigInteger())
 			print("Y: ")
 			println(ecPubPoint.affineYCoord.toBigInteger())
+			val ecParameterSpec = getECParameterSpec(curveOID)
 			val ecPubSpec = JavaECPublicKeySpec(
 				JavaECPoint(
 					ecPubPoint.affineXCoord.toBigInteger(),
 					ecPubPoint.affineYCoord.toBigInteger()
 				),
-				getECParameterSpec(curveOID)
+				ecParameterSpec,
 			)
-			val keyFactory = DefaultJcaJceHelper().createKeyFactory("EC")
+			val keyFactory = helper.createKeyFactory("EC")
 			val pubKey = keyFactory.generatePublic(ecPubSpec)
-			val ecPrivSpec = JavaECPrivateKeySpec(d, getECParameterSpec(curveOID))
+			val ecPrivSpec = JavaECPrivateKeySpec(d, ecParameterSpec)
 			val privateKey = keyFactory.generatePrivate(ecPrivSpec)
 			print("Pubkey: ")
 			println(Hex.toHexString(pubKey.encoded))
